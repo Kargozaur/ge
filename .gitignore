@@ -1,0 +1,4 @@
+local.db
+.env
+go.sum
+app
