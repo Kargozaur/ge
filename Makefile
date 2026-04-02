@@ -1,4 +1,5 @@
 include makefiles/migrations.mk
+include makefiles/tests.mk
 
 .PHONY: run build fmt
 
