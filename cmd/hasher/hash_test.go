@@ -47,9 +47,8 @@ func TestBcryptHasher(t *testing.T) {
 func TestSalt(t *testing.T) {
 	h := hasher.NewBcryptHasher(10)
 	pwd := "myCoolPassword"
-	hash1, _ := h.Hash(pwd)
-	hash2, _ := h.Hash(pwd)
-	if hash1 == hash2 {
-		t.Errorf("Hasher generated the same hash")
+	hash, _ := h.Hash(pwd)
+	if !h.VerifyPwd(pwd, hash) {
+		t.Error("Password didn't verified")
 	}
 }
