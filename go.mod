@@ -9,7 +9,8 @@ require (
 
 require (
 	github.com/jinzhu/now v1.1.5 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/crypto v0.49.0
+	golang.org/x/text v0.35.0 // indirect
 )
 
 require (
