@@ -32,13 +32,13 @@ func TestBcryptHasher(t *testing.T) {
 	for _, tt := range tests {
 		hash, err := h.Hash(tt.password)
 		if err != nil {
-			t.Fatalf("Failed to hash %v\n", err)
+			t.Errorf("Failed to hash %v\n", err)
 		}
 		if hash == "" {
-			t.Fatalf("Hash can't be an empty string")
+			t.Error("Hash can't be an empty string")
 		}
 		if !h.VerifyPwd(tt.password, hash) {
-			t.Fatalf("Failed to verify password %v\n", tt.password)
+			t.Errorf("Failed to verify password %v\n", tt.password)
 		}
 
 	}
