@@ -27,7 +27,7 @@ func TestTokenManager(t *testing.T) {
 	t.Run("Verify_InvalidToken", func(t *testing.T) {
 		err := mgr.VerifyToken("not.a.valid.token")
 		if err == nil {
-			t.Error("Expected error for invalid token string, but got nil")
+			t.Error("Error exptected, instead got nil(InvalidToken)")
 		}
 	})
 

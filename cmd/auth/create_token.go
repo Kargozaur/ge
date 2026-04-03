@@ -26,7 +26,7 @@ func (t *TokenKey) CreateAccessToken(userId uuid.UUID) (string, error) {
 	return token.SignedString(t.SecretKey)
 }
 
-func (t*TokenKey) VerifyToken(tokenStr string) error {
+func (t *TokenKey) VerifyToken(tokenStr string) error {
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error){
 		return t.SecretKey, nil
 	})
