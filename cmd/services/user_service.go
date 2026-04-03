@@ -13,11 +13,12 @@ import (
 )
 
 type userService struct {
-	hasher hasher.PasswordHasher
+	hasher 		hasher.PasswordHasher
+	jwtProvider auth.JwtProvider
 }
 
-func NewUserService(hasher hasher.PasswordHasher) *userService {
-	return &userService{hasher: hasher}
+func NewUserService(hasher hasher.PasswordHasher, jwtProvider auth.JwtProvider) *userService {
+	return &userService{hasher: hasher, jwtProvider: jwtProvider}
 }
 
 func (u *userService) CreateUser(schema *requests.CreateUserRequest, db *gorm.DB) (responses.UserResponse, error) {
@@ -36,7 +37,7 @@ func (u *userService) CreateUser(schema *requests.CreateUserRequest, db *gorm.DB
 	return userResponse, nil
 }
 
-func (u *userService) VerifyUser(schema *requests.Login, db *gorm.DB, jwtProvider auth.JwtProvider) (responses.Token, error) {
+func (u *userService) VerifyUser(schema *requests.Login, db *gorm.DB) (responses.Token, error) {
 	var userModel models.User
 	
 	if err := db.Where("email = ?", schema.Email).First(&userModel).Error; err != nil {
@@ -48,16 +49,16 @@ func (u *userService) VerifyUser(schema *requests.Login, db *gorm.DB, jwtProvide
 	if !u.hasher.VerifyPwd(schema.Password, userModel.Password) {
 		return responses.Token{}, errors.New("Invalid credentials")
 	}
-	token, err := jwtProvider.CreateAccessToken(userModel.ID)
+	token, err := u.jwtProvider.CreateAccessToken(userModel.ID)
 	if err != nil {
 		return responses.Token{}, err
 	}
 	return responses.NewToken(token), nil
 }
 
-func (u *userService) GetUser(jwtToken string, db *gorm.DB, jwtProvider auth.JwtProvider) (responses.UserResponse, error) {
+func (u *userService) GetUser(jwtToken string, db *gorm.DB) (responses.UserResponse, error) {
 	var userModel models.User
-	userId, err := jwtProvider.GetIdFromToken(jwtToken)
+	userId, err := u.jwtProvider.GetIdFromToken(jwtToken)
 	if err != nil {
 		return responses.UserResponse{}, err
 	}
