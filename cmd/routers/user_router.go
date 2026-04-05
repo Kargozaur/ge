@@ -7,15 +7,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type RouterDeps struct {
-	UserHandler *userHandlers.UserHandler
-}
 
-func NewUserRouter(h RouterDeps) http.Handler{
+func NewUserRouter(h *userHandlers.UserHandler) http.Handler{
 	r := chi.NewRouter()
 	r.Route("/user", func(r chi.Router){
-		r.Post("/register", h.UserHandler.CreateUser())
-		r.Post("/login", h.UserHandler.LoginUser())
+		r.Post("/register", h.CreateUser())
+		r.Post("/login", h.LoginUser())
 	})
 	return r
 }
