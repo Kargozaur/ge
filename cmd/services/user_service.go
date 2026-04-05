@@ -13,16 +13,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type userService struct {
+type UserService struct {
 	hasher 		hasher.PasswordHasher
 	jwtProvider auth.JwtProvider
+	db 			*gorm.DB
 }
 
-func NewUserService(hasher hasher.PasswordHasher, jwtProvider auth.JwtProvider) *userService {
-	return &userService{hasher: hasher, jwtProvider: jwtProvider}
+func NewUserService(hasher hasher.PasswordHasher, jwtProvider auth.JwtProvider, db *gorm.DB) *UserService {
+	return &UserService{hasher: hasher, jwtProvider: jwtProvider, db: db}
 }
 
-func (u *userService) CreateUser(schema *requests.CreateUserRequest, db *gorm.DB) (responses.UserResponse, error) {
+func (u *UserService) CreateUser(schema *requests.CreateUserRequest) (responses.UserResponse, error) {
 	errs := util.VerifyPassword(schema.Password)
 	if len(errs) > 0 {
 		return responses.UserResponse{}, errors.Join(errs...)
@@ -32,7 +33,7 @@ func (u *userService) CreateUser(schema *requests.CreateUserRequest, db *gorm.DB
 		return responses.UserResponse{}, err
 	}
 	user := models.ToUserModel(schema.Email, string(hash))
-	if err = db.Create(&user).Error; err != nil {
+	if err = u.db.Create(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey){
 			return responses.UserResponse{}, errors.New("User with this email already exists")
 		}
@@ -42,10 +43,9 @@ func (u *userService) CreateUser(schema *requests.CreateUserRequest, db *gorm.DB
 	return userResponse, nil
 }
 
-func (u *userService) VerifyUser(schema *requests.Login, db *gorm.DB) (responses.Token, error) {
+func (u *UserService) VerifyUser(schema *requests.Login) (responses.Token, error) {
 	var userModel models.User
-	
-	if err := db.Where("email = ?", schema.Email).First(&userModel).Error; err != nil {
+	if err := u.db.Where("email = ?", schema.Email).First(&userModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound){
 			return responses.Token{}, errors.New("Invalid credentials")
 		}
@@ -61,13 +61,13 @@ func (u *userService) VerifyUser(schema *requests.Login, db *gorm.DB) (responses
 	return responses.NewToken(token), nil
 }
 
-func (u *userService) GetUser(jwtToken string, db *gorm.DB) (responses.UserResponse, error) {
+func (u *UserService) GetUser(jwtToken string) (responses.UserResponse, error) {
 	var userModel models.User
 	userId, err := u.jwtProvider.GetIdFromToken(jwtToken)
 	if err != nil {
 		return responses.UserResponse{}, err
 	}
-	if err := db.Where("id = ?", userId).First(&userModel).Error; err != nil {
+	if err := u.db.Where("id = ?", userId).First(&userModel).Error; err != nil {
 		return responses.UserResponse{}, err
 	}
 	userData := responses.ToUserResponse(&userModel)
