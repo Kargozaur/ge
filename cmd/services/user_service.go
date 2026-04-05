@@ -9,6 +9,7 @@ import (
 	"github.com/Kargozaur/ge/cmd/models"
 	"github.com/Kargozaur/ge/cmd/requests"
 	"github.com/Kargozaur/ge/cmd/responses"
+	"github.com/Kargozaur/ge/cmd/util"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +23,10 @@ func NewUserService(hasher hasher.PasswordHasher, jwtProvider auth.JwtProvider) 
 }
 
 func (u *userService) CreateUser(schema *requests.CreateUserRequest, db *gorm.DB) (responses.UserResponse, error) {
+	errs := util.VerifyPassword(schema.Password)
+	if len(errs) > 0 {
+		return responses.UserResponse{}, errors.Join(errs...)
+	}
 	hash, err := u.hasher.Hash(schema.Password)
 	if err != nil {
 		return responses.UserResponse{}, err
