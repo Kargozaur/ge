@@ -25,39 +25,72 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 
 func (handler *UserHandler) CreateUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		wr := util.NewJSONWriter(w)
 		var userRequest requests.CreateUserRequest
 		if err := util.DecodeJson(r, &userRequest); err != nil {
-			util.WriteError(w, http.StatusBadRequest, err)
+			wr.Write(http.StatusBadRequest, err)
 			return
 		}
 		if userRequest.Email == "" || userRequest.Password == "" {
-			util.WriteError(w, http.StatusUnprocessableEntity, errors.New("Body must contain email and password fields"))
+			wr.WriterError(http.StatusUnprocessableEntity, errors.New("Body must contain email and password fields"))
 			return
 		}
 		user, err := handler.service.CreateUser(&userRequest)
 		if err != nil {
-			util.WriteError(w, http.StatusUnprocessableEntity, err)
+			wr.WriterError(http.StatusUnprocessableEntity, err)
 			return
 		}
-		util.WriteJSON(w, http.StatusOK, user)
+		wr.Write(http.StatusOK, user)
 	}
 }
 
 func (handler *UserHandler) LoginUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		wr := util.NewJSONWriter(w)
 		var userRequest requests.Login
 		if err := util.DecodeJson(r, &userRequest); err != nil {
-			util.WriteError(w, http.StatusBadRequest, err)
+			wr.WriterError(http.StatusBadRequest, err)
 			return
 		}
 		if userRequest.Email == "" || userRequest.Password == "" {
-			util.WriteError(w, http.StatusUnprocessableEntity, errors.New("Body must contain email and password fields"))
+			wr.WriterError(http.StatusUnprocessableEntity, errors.New("Body must contain email and password fields"))
 			return
 		}
 		token, err := handler.service.VerifyUser(&userRequest)
 		if err != nil {
-			util.WriteError(w, http.StatusNotFound, err)
+			wr.WriterError(http.StatusNotFound, err)
+			return
 		}
-		util.WriteJSON(w, http.StatusOK, token)
+		cookie := http.Cookie{
+			Name:     "access_token",
+			Value:    token.AccessToken,
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   3600,
+			SameSite: http.SameSiteLaxMode,
+		}
+		wr.SetCookie(&cookie)
+		wr.Write(http.StatusOK, token)
+	}
+}
+
+func (handler *UserHandler) GetUserData() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		wr := util.NewJSONWriter(w)
+		authHeader := r.Header.Get("access_token")
+		if authHeader == "" {
+			authCookie, err := r.Cookie("access_token")
+			if err != nil || authCookie.String() == "" {
+				wr.WriterError(http.StatusUnauthorized, errors.New("Unauthorized"))
+				return
+			}
+			authHeader = authCookie.Value
+		}
+		user, err := handler.service.GetUser(authHeader)
+		if err != nil {
+			wr.WriterError(http.StatusNotFound, err)
+			return
+		}
+		wr.Write(http.StatusOK, user)
 	}
 }

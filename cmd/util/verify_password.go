@@ -36,7 +36,7 @@ func VerifyPassword(password string) []error {
 
 func isSpecial(ch rune) bool {
 	switch ch {
-	case '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=':
+	case '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', '-', '=', ':', ';':
 		return true
 	}
 	return false
