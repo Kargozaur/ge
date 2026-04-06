@@ -29,7 +29,7 @@ func (handler *UserHandler) CreateUser() http.HandlerFunc {
 		wr := util.NewJSONWriter(w)
 		var userRequest requests.CreateUserRequest
 		if err := util.DecodeJson(r, &userRequest); err != nil {
-			wr.Write(http.StatusBadRequest, err)
+			wr.WriterError(http.StatusBadRequest, err)
 			return
 		}
 		if userRequest.Email == "" || userRequest.Password == "" {
