@@ -51,7 +51,7 @@ func (t *TokenKey) GetIdFromToken(tokenStr string) (uuid.UUID, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		sub, ok := claims["sub"].(string)
 		if !ok {
-			return uuid.Nil, errors.New("Didn't found sub parameter in the jwt token")
+			return uuid.Nil, errors.New("Failed to find sub parameter in the jwt token")
 		}
 		userId, err := uuid.Parse(sub)
 		if err != nil {
