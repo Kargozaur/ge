@@ -46,7 +46,7 @@ func (t *TokenKey) GetIdFromToken(tokenStr string) (uuid.UUID, error) {
 		return t.SecretKey, nil
 	})
 	if err != nil {
-		return uuid.Nil, nil
+		return uuid.Nil, err
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		sub, ok := claims["sub"].(string)
