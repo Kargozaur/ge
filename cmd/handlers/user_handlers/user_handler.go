@@ -70,9 +70,7 @@ func (handler *UserHandler) LoginUser() http.HandlerFunc {
 			MaxAge:   3600,
 			SameSite: http.SameSiteLaxMode,
 		}
-		wr.SetAuth(token.AccessToken)
-		wr.SetCookie(&cookie)
-		wr.Write(http.StatusCreated, token)
+		wr.SetAuth(token.AccessToken).SetCookie(&cookie).Write(http.StatusCreated, token)
 	}
 }
 
