@@ -8,10 +8,10 @@ import (
 )
 
 type UserResponse struct {
-	ID 	  		uuid.UUID `json:"id"`
-	Email 		string    `json:"email"`
-	CreatedAt	time.Time `json:"createdAt"`
-	UpdatedAt	time.Time `json:"updatedAt"`
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func ToUserResponse(user *models.User) UserResponse {

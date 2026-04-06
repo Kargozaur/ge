@@ -6,7 +6,7 @@ import (
 	"github.com/Kargozaur/ge/cmd/util"
 )
 
-func TestVerifyPassword(t *testing.T){
+func TestVerifyPassword(t *testing.T) {
 	tests := []struct {
 		name     string
 		password string
@@ -54,7 +54,7 @@ func TestVerifyPassword(t *testing.T){
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T){
+		t.Run(tt.name, func(t *testing.T) {
 			errs := util.VerifyPassword(tt.password)
 			if len(errs) != tt.wantErrs {
 				t.Errorf("got %d errors, want %d. Errors: %v", len(errs), tt.wantErrs, errs)

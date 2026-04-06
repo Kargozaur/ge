@@ -17,7 +17,6 @@ func NewJwtProvider() *TokenKey {
 	return &TokenKey{SecretKey: []byte(os.Getenv("SECRET_KEY"))}
 }
 
-
 func (t *TokenKey) CreateAccessToken(userId uuid.UUID) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": userId.String(),
@@ -27,7 +26,7 @@ func (t *TokenKey) CreateAccessToken(userId uuid.UUID) (string, error) {
 }
 
 func (t *TokenKey) VerifyToken(tokenStr string) error {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error){
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
 		return t.SecretKey, nil
 	})
 	if err != nil {
@@ -58,7 +57,7 @@ func (t *TokenKey) GetIdFromToken(tokenStr string) (uuid.UUID, error) {
 		if err != nil {
 			return uuid.Nil, errors.New("Failed to parse UUID")
 		}
-		return userId, nil		
+		return userId, nil
 	}
 	return uuid.Nil, errors.New("Invalid token")
 }

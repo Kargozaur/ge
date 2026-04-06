@@ -28,11 +28,11 @@ func (handler *UserHandler) CreateUser() http.HandlerFunc {
 		var userRequest requests.CreateUserRequest
 		if err := util.DecodeJson(r, &userRequest); err != nil {
 			util.WriteError(w, http.StatusBadRequest, err)
-			return 
+			return
 		}
-		if userRequest.Email == "" || userRequest.Password == ""{
+		if userRequest.Email == "" || userRequest.Password == "" {
 			util.WriteError(w, http.StatusUnprocessableEntity, errors.New("Body must contain email and password fields"))
-			return 
+			return
 		}
 		user, err := handler.service.CreateUser(&userRequest)
 		if err != nil {

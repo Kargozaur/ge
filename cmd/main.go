@@ -16,11 +16,10 @@ type BaseResponse struct {
 	When    time.Time `json:"when"`
 }
 
-
 func main() {
 	db := config.DbConf()
 	userHandler := userhandlers.NewUserHandler(db)
-	userRouter := routers.NewUserRouter(userHandler) 
+	userRouter := routers.NewUserRouter(userHandler)
 	r := chi.NewRouter()
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		msg := BaseResponse{Message: "Default page", When: time.Now().UTC()}

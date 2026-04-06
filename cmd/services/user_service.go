@@ -14,9 +14,9 @@ import (
 )
 
 type UserService struct {
-	hasher 		hasher.PasswordHasher
+	hasher      hasher.PasswordHasher
 	jwtProvider auth.JwtProvider
-	db 			*gorm.DB
+	db          *gorm.DB
 }
 
 func NewUserService(hasher hasher.PasswordHasher, jwtProvider auth.JwtProvider, db *gorm.DB) *UserService {
@@ -34,7 +34,7 @@ func (u *UserService) CreateUser(schema *requests.CreateUserRequest) (responses.
 	}
 	user := models.ToUserModel(schema.Email, string(hash))
 	if err = u.db.Create(&user).Error; err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey){
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return responses.UserResponse{}, errors.New("User with this email already exists")
 		}
 		return responses.UserResponse{}, fmt.Errorf("Failed to create user: %v\n", err)
@@ -46,7 +46,7 @@ func (u *UserService) CreateUser(schema *requests.CreateUserRequest) (responses.
 func (u *UserService) VerifyUser(schema *requests.Login) (responses.Token, error) {
 	var userModel models.User
 	if err := u.db.Where("email = ?", schema.Email).First(&userModel).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound){
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return responses.Token{}, errors.New("Invalid credentials")
 		}
 		return responses.Token{}, err

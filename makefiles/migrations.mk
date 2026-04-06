@@ -1,4 +1,4 @@
-DB_PATH=../local.db
+DB_PATH=./local.db
 MIGRATIONS_DIR=./migrations
 DB=sqlite3
 

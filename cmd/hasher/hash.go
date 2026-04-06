@@ -12,7 +12,7 @@ func NewBcryptHasher(cost int) *BcryptHasher {
 
 func (b *BcryptHasher) Hash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), b.cost)
-	return  string(bytes), err
+	return string(bytes), err
 }
 
 func (b *BcryptHasher) VerifyPwd(password, hashedPwd string) bool {
