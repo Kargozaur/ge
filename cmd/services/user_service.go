@@ -27,8 +27,7 @@ func (u *UserService) CreateUser(schema *requests.CreateUserRequest) (responses.
 	if !util.VerifyEmail(schema.Email) {
 		return responses.UserResponse{}, errors.New("Invalid email")
 	}
-	errs := util.VerifyPassword(schema.Password)
-	if len(errs) > 0 {
+	if errs := util.VerifyPassword(schema.Password); len(errs) > 0 {
 		return responses.UserResponse{}, errors.Join(errs...)
 	}
 	hash, err := u.hasher.Hash(schema.Password)
