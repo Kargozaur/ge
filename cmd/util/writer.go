@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Kargozaur/ge/cmd/responses"
@@ -17,6 +18,16 @@ func NewJSONWriter(w http.ResponseWriter) *JSONWriter {
 
 func (w *JSONWriter) AddHeader(key, value string) *JSONWriter {
 	w.w.Header().Add(key, value)
+	return w
+}
+
+func (w *JSONWriter) SetHeader(key, value string) *JSONWriter {
+	w.w.Header().Set(key, value)
+	return w
+}
+
+func (w *JSONWriter) SetAuth(token string) *JSONWriter {
+	w.w.Header().Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	return w
 }
 
