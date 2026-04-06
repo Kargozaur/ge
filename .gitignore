@@ -2,3 +2,4 @@ local.db
 .env
 go.sum
 app
+cookie.txt

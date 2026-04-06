@@ -3,7 +3,6 @@ package userhandlers
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/Kargozaur/ge/cmd/auth"
 	"github.com/Kargozaur/ge/cmd/hasher"
@@ -70,24 +69,19 @@ func (handler *UserHandler) LoginUser() http.HandlerFunc {
 			MaxAge:   3600,
 			SameSite: http.SameSiteLaxMode,
 		}
-		wr.SetAuth(token.AccessToken).SetCookie(&cookie).Write(http.StatusCreated, token)
+		wr.SetCookie(&cookie).Write(http.StatusCreated, token)
 	}
 }
 
 func (handler *UserHandler) GetUserData() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		wr := util.NewJSONWriter(w)
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			authCookie, err := r.Cookie("access_token")
-			if err != nil || authCookie.String() == "" {
-				wr.WriterError(http.StatusUnauthorized, errors.New("Unauthorized"))
-				return
-			}
-			authHeader = authCookie.Value
+		authCookie, err := r.Cookie("access_token")
+		if err != nil || authCookie.Value == "" {
+			wr.WriterError(http.StatusUnauthorized, errors.New("Unauthorized"))
+			return
 		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		user, err := handler.service.GetUser(token)
+		user, err := handler.service.GetUser(authCookie.Value)
 		if err != nil {
 			wr.WriterError(http.StatusNotFound, err)
 			return
