@@ -24,6 +24,9 @@ func NewUserService(hasher hasher.PasswordHasher, jwtProvider auth.JwtProvider, 
 }
 
 func (u *UserService) CreateUser(schema *requests.CreateUserRequest) (responses.UserResponse, error) {
+	if !util.VerifyEmail(schema.Email) {
+		return responses.UserResponse{}, errors.New("Invalid email")
+	}
 	errs := util.VerifyPassword(schema.Password)
 	if len(errs) > 0 {
 		return responses.UserResponse{}, errors.Join(errs...)
@@ -44,6 +47,12 @@ func (u *UserService) CreateUser(schema *requests.CreateUserRequest) (responses.
 }
 
 func (u *UserService) VerifyUser(schema *requests.Login) (responses.Token, error) {
+	if !util.VerifyEmail(schema.Email) {
+		return responses.Token{}, fmt.Errorf("Email %s is not a valid email", schema.Email)
+	}
+	if errs := util.VerifyPassword(schema.Password); len(errs) > 0 {
+		return responses.Token{}, fmt.Errorf("Bad password format. %s", errors.Join(errs...))
+	}
 	var userModel models.User
 	if err := u.db.Where("email = ?", schema.Email).First(&userModel).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
